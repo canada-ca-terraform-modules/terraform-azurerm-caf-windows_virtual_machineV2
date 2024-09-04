@@ -25,20 +25,15 @@ variable "project" {
   type = string
 }
 
-variable "serverType" {
-  description = "(Required) 3 character string defining the server type for the VM"
-  type = string
-}
-
 variable "userDefinedString" {
   description = "(Required) User defined portion value for the name of the VM."
   type = string
 }
 
-variable "postfix" {
-  description = "(Required) Desired postfix value for the name of the VM."
+variable "serverType" {
+  description = "3 character string defining the server type for the VM"
   type = string
-  default = ""
+  default = "SWJ"
 }
 
 variable "windows_VM" {
