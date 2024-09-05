@@ -6,7 +6,6 @@ locals {
   userDefinedString_replaced         = replace(var.userDefinedString, "_", "-")
   userDefinedString_replaced_shorten = substr(local.userDefinedString_replaced, 0, local.maxLenght - length(local.postfix) - length(local.env_4_bk) - 4)
   rsv-name                           = substr(replace("${local.env_4_bk}CNR-${var.group}-${var.project}${local.postfix}", local.regex, ""), 0, local.maxLenght)
-  policy-name                        = "${var.env}CNR-${var.group}_${var.project}-${try(var.windows_VM.backup.policy-name, "daily1")}-rsvp"
 }
 
 data "azurerm_recovery_services_vault" "rsv" {
@@ -15,7 +14,7 @@ data "azurerm_recovery_services_vault" "rsv" {
 }
 
 data "azurerm_backup_policy_vm" "backup_policy" {
-  name                = local.policy-name
+  name                = local.backup-policy-name
   recovery_vault_name = data.azurerm_recovery_services_vault.rsv.name
   resource_group_name = data.azurerm_recovery_services_vault.rsv.resource_group_name
 }

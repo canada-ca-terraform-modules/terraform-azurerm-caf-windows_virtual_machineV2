@@ -102,10 +102,10 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 
   dynamic "identity" {
-    for_each = try(var.windows_VM.identity, null) != null ? [1] : []
+    for_each = try(var.windows_VM.identity, null) != null || try(var.windows_VM.boot_diagnostic, false) == true ? [1] : []
     content {
-      type         = var.windows_VM.identity.type
-      identity_ids = var.windows_VM.identity.identity_ids
+      type         = try(var.windows_VM.identity.type, "SystemAssigned")
+      identity_ids = try(var.windows_VM.identity.identity_ids, [])
     }
   }
 
@@ -194,7 +194,7 @@ resource "azurerm_managed_disk" "data_disks" {
   resource_group_name  = local.resource_group_name
   location             = var.location
   storage_account_type = try(each.value.os_managed_disk_type, "StandardSSD_LRS")
-  create_option        = try(each.value.create_option, "Empty")
+  create_option        = try(each.value.disk_create_option, "Empty")
   disk_size_gb         = try(each.value.disk_size_gb, 256)
 
   #Optional paramaters
@@ -206,8 +206,8 @@ resource "azurerm_managed_disk" "data_disks" {
   edge_zone                         = try(each.value.edge_zone, null)
   hyper_v_generation                = try(each.value.hyper_v_generation, null)
   image_reference_id                = try(each.value.image_reference_id, null)
-  gallery_image_reference_id        = try(each.value.gallery_image_reference_id)
-  logical_sector_size               = try(each.value.logical_sector_size, 4096)
+  gallery_image_reference_id        = try(each.value.gallery_image_reference_id, null)
+  logical_sector_size               = try(each.value.logical_sector_size, null)
   optimized_frequent_attach_enabled = try(each.value.optimized_frequent_attach_enabled, false)
   performance_plus_enabled          = try(each.value.performance_plus_enabled, false)
   os_type                           = try(each.value.os_type, null)
@@ -215,14 +215,12 @@ resource "azurerm_managed_disk" "data_disks" {
   source_uri                        = try(each.value.source_uri, null)
   storage_account_id                = try(each.value.storage_account_id, null)
   tier                              = try(each.value.tier, null)
-  max_shares                        = try(each.value.max_shares, 1)
+  max_shares                        = try(each.value.max_shares, null)
   trusted_launch_enabled            = try(each.value.trusted_launch_enabled, null)
   security_type                     = try(each.value.security_type, null)
   secure_vm_disk_encryption_set_id  = try(each.value.secure_vm_disk_encryption_set_id, null)
   on_demand_bursting_enabled        = try(each.value.on_demand_bursting_enabled, null)
   zone                              = try(each.value.zone, null)
-  network_access_policy             = try(each.value.network_access_policy, "AllowPrivate")
-  disk_access_id                    = azurerm_disk_access.disk_access[index(var.windows_VM.data_disks, each.value)].id
   public_network_access_enabled     = try(each.value.public_network_access_enabled, false)
 
 
@@ -246,34 +244,4 @@ resource "azurerm_virtual_machine_data_disk_attachment" "data_disks_attachment" 
   lifecycle {
     ignore_changes = [managed_disk_id, virtual_machine_id]
   }
-
-}
-
-resource "azurerm_disk_access" "disk_access" {
-  for_each = try(var.windows_VM.data_disks.private_endpoint, {})
-
-  name                = "${local.vm-name}-diskaccess${each.value.lun + 1}"
-  location            = var.location
-  resource_group_name = local.resource_group_name
-
-  tags = var.tags
-}
-
-module "private_endpoint" {
-  source   = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-private_endpoint.git?ref=v1.0.1"
-  for_each = try(var.windows_VM.data_disks.private_endpoint, {})
-
-  name                           = "${local.vm-name}-pe${index(var.windows_VM.data_disks, each.value) + 1}"
-  location                       = var.location
-  resource_groups                = var.resource_groups
-  subnets                        = var.subnets
-  private_connection_resource_id = azurerm_disk_access.disk_access[index(var.windows_VM.data_disks, each.value)].id
-  private_dns_zone_ids           = var.private_dns_zone_ids
-
-  private_endpoint = {
-    resource_group    = var.windows_VM.resource_group
-    subnet            = var.windows_VM.subnet
-    subresource_names = ["managed disk"]
-  }
-  tags = var.tags
 }
