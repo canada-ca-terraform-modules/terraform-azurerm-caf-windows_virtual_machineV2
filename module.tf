@@ -245,3 +245,39 @@ resource "azurerm_virtual_machine_data_disk_attachment" "data_disks_attachment" 
     ignore_changes = [managed_disk_id, virtual_machine_id]
   }
 }
+
+resource "azurerm_network_security_group" "NSG" {
+  count               = try(var.windows_VM.use_nic_nsg, false) ? 1 : 0
+  name                = "${local.vm-name}-nsg"
+  location            = var.location
+  resource_group_name = local.resource_group_name
+
+  dynamic "security_rule" {
+    for_each = [for sr in var.windows_VM.security_rules : {
+      name                       = sr.name
+      priority                   = sr.priority
+      direction                  = sr.direction
+      access                     = sr.access
+      protocol                   = sr.protocol
+      source_port_ranges         = split(",", replace(sr.source_port_ranges[0], "*", "0-65535"))
+      destination_port_ranges    = split(",", replace(sr.destination_port_ranges[0], "*", "0-65535"))
+      source_address_prefixes      = sr.source_address_prefixes
+      destination_address_prefixes = sr.destination_address_prefixes
+      description                = sr.description
+    }]
+    content {
+      name                       = security_rule.value.name
+      priority                   = security_rule.value.priority
+      direction                  = security_rule.value.direction
+      access                     = security_rule.value.access
+      protocol                   = security_rule.value.protocol
+      source_port_ranges         = security_rule.value.source_port_ranges
+      destination_port_ranges    = security_rule.value.destination_port_ranges
+      source_address_prefixes      = security_rule.value.source_address_prefixes
+      destination_address_prefixes = security_rule.value.destination_address_prefixes
+      description                = security_rule.value.description
+    }
+  }
+
+  tags = merge(var.tags, try(var.windows_VM.tags, {}))
+}

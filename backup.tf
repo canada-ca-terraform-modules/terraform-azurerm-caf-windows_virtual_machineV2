@@ -1,6 +1,6 @@
 locals {
   postfix                            = "-rsv"
-  maxLenght                          = 50 #
+  maxLenght                          = 50 
   env_4_bk                              = substr(var.env, 0, 4)
   regex                              = "/[^0-9A-Za-z-]/"
   userDefinedString_replaced         = replace(var.userDefinedString, "_", "-")

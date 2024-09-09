@@ -12,7 +12,7 @@ module "boot_diagnostic_storage" {
   storage_account = {
     resource_group            = var.windows_VM.resource_group
     account_tier              = "Standard"
-    account_replication_type  = "LRS"
+    account_replication_type  = "GRS"
     private_endpoint = {
       "${var.userDefinedString}-logs" = {
         resource_group = var.windows_VM.resource_group
