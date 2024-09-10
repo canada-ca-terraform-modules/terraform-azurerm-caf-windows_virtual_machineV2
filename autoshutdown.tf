@@ -1,4 +1,5 @@
-resource "azurerm_dev_test_global_vm_shutdown_schedule" "name" {
+# Sets auto shutdown for the VM if configured
+resource "azurerm_dev_test_global_vm_shutdown_schedule" "autoShutdown" {
   count = try(var.windows_VM.auto_shutdown_config, null) != null ? 1 : 0
 
   location = var.location

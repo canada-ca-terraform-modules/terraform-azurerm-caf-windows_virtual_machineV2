@@ -58,10 +58,3 @@ variable "user_data" {
   type = any
   default = null
 }
-
-
-variable "private_dns_zone_ids" {
-  description = "List of private DNS zone ids of the target subscription"
-  type = any
-  default = {}
-}

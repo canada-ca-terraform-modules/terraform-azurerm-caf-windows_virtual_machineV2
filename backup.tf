@@ -8,11 +8,13 @@ locals {
   rsv-name                           = substr(replace("${local.env_4_bk}CNR-${var.group}-${var.project}${local.postfix}", local.regex, ""), 0, local.maxLenght)
 }
 
+# Get the RSV from the target sub
 data "azurerm_recovery_services_vault" "rsv" {
   name                = local.rsv-name
   resource_group_name = var.resource_groups["Backups"].name 
 }
 
+# Get the desired backup policy from the RSV
 data "azurerm_backup_policy_vm" "backup_policy" {
   name                = local.backup-policy-name
   recovery_vault_name = data.azurerm_recovery_services_vault.rsv.name

@@ -40,6 +40,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   vtpm_enabled                                           = try(var.windows_VM.vtpm_enabled, null)
   zone                                                   = try(var.windows_VM.zone, null)
 
+  # Only one OS disk is accepted. Default size is 128Gb. 
   os_disk {
     name                      = "${local.vm-name}-osdisk1"
     caching                   = try(var.windows_VM.os_disk.caching, "ReadWrite")
@@ -48,6 +49,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
     write_accelerator_enabled = try(var.windows_VM.write_accelerator_enabled, false)
   }
 
+  # A source image ID might be given instead
   dynamic "source_image_reference" {
     for_each = try(var.windows_VM.source_image_id, null) == null ? [1] : []
     content {
@@ -81,14 +83,6 @@ resource "azurerm_windows_virtual_machine" "vm" {
     }
   }
 
-  # dynamic "diff_disk_settings" {
-  #   for_each = try(var.windows_VM.diff_disk_settings, null) != null ? [1] : []
-  #   content {
-  #     option = var.windows_VM.diff_disk_settings.option
-  #     placement = try(var.windows_VM.diff_disk_settings.placement, "CacheDisk")
-  #   }
-  # }
-
   dynamic "gallery_application" {
     for_each = try(var.windows_VM.gallery_application, null) != null ? [1] : []
     content {
@@ -101,6 +95,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
     }
   }
 
+  # If boot diagnostic is enabled, then the VM needs a SystemAssigned identity, other acts like all other dynamic blocks
   dynamic "identity" {
     for_each = try(var.windows_VM.identity, null) != null || try(var.windows_VM.boot_diagnostic, false) == true ? [1] : []
     content {
@@ -162,6 +157,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 }
 
+# More than one NIC can be configured
 resource "azurerm_network_interface" "vm-nic" {
   for_each            = var.windows_VM.nic
   name                = "${local.vm-name}-nic${local.nic_indices[each.key] + 1}"
@@ -176,6 +172,7 @@ resource "azurerm_network_interface" "vm-nic" {
 
   tags = merge(var.tags, try(each.value.tags, {}))
 
+  # The first NIC in the list will always be the primary
   ip_configuration {
     name                          = "${local.vm-name}-ipconfig${local.nic_indices[each.key] + 1}"
     private_ip_address_allocation = try(each.value.private_ip_address_allocation, "Dynamic")
@@ -246,6 +243,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "data_disks_attachment" 
   }
 }
 
+# NSG usually set on subnet level, adding it here for inevitable edge cases
 resource "azurerm_network_security_group" "NSG" {
   count               = try(var.windows_VM.use_nic_nsg, false) ? 1 : 0
   name                = "${local.vm-name}-nsg"
@@ -254,30 +252,46 @@ resource "azurerm_network_security_group" "NSG" {
 
   dynamic "security_rule" {
     for_each = [for sr in var.windows_VM.security_rules : {
-      name                       = sr.name
-      priority                   = sr.priority
-      direction                  = sr.direction
-      access                     = sr.access
-      protocol                   = sr.protocol
-      source_port_ranges         = split(",", replace(sr.source_port_ranges[0], "*", "0-65535"))
-      destination_port_ranges    = split(",", replace(sr.destination_port_ranges[0], "*", "0-65535"))
+      name                         = sr.name
+      priority                     = sr.priority
+      direction                    = sr.direction
+      access                       = sr.access
+      protocol                     = sr.protocol
+      source_port_ranges           = split(",", replace(sr.source_port_ranges[0], "*", "0-65535"))
+      destination_port_ranges      = split(",", replace(sr.destination_port_ranges[0], "*", "0-65535"))
       source_address_prefixes      = sr.source_address_prefixes
       destination_address_prefixes = sr.destination_address_prefixes
-      description                = sr.description
+      description                  = sr.description
     }]
     content {
-      name                       = security_rule.value.name
-      priority                   = security_rule.value.priority
-      direction                  = security_rule.value.direction
-      access                     = security_rule.value.access
-      protocol                   = security_rule.value.protocol
-      source_port_ranges         = security_rule.value.source_port_ranges
-      destination_port_ranges    = security_rule.value.destination_port_ranges
+      name                         = security_rule.value.name
+      priority                     = security_rule.value.priority
+      direction                    = security_rule.value.direction
+      access                       = security_rule.value.access
+      protocol                     = security_rule.value.protocol
+      source_port_ranges           = security_rule.value.source_port_ranges
+      destination_port_ranges      = security_rule.value.destination_port_ranges
       source_address_prefixes      = security_rule.value.source_address_prefixes
       destination_address_prefixes = security_rule.value.destination_address_prefixes
-      description                = security_rule.value.description
+      description                  = security_rule.value.description
     }
   }
 
   tags = merge(var.tags, try(var.windows_VM.tags, {}))
+}
+
+# These last two resources are here for bacvkwards compatibility
+resource "azurerm_network_interface_backend_address_pool_association" "LB" {
+  for_each = try(var.windows_VM.load_balancer_address_pools_ids, {})
+
+  network_interface_id    = azurerm_network_interface.vm-nic[keys(local.nic_indices)[0]].id
+  ip_configuration_name   = "${local.vm-name}-ipconfig1"
+  backend_address_pool_id = each.key
+}
+
+resource "azurerm_network_interface_application_security_group_association" "asg" {
+  count = try(var.windows_VM.asg, null) != null ? 1 : 0
+  network_interface_id = azurerm_network_interface.vm-nic[keys(local.nic_indices)[0]].id
+  application_security_group_id = var.windows_VM.asg.application_security_group_id
+
 }
