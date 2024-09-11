@@ -16,7 +16,6 @@ module "windows_VMs" {
   windows_VM = each.value
   resource_groups = local.resource_groups_all
   subnets = local.subnets
-  private_dns_zone_ids = local.Project-dns-zone
   user_data = try(each.value.user_data, false) != false ? base64encode(file("${path.cwd}/${each.value.user_data}")) : null
 
 }
