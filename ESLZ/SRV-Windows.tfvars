@@ -81,6 +81,20 @@ windows_VMs = {
     # }
 
 
+    # Optional: Uncomment to configure boot diagnostic. DEfaults to using a managed storage account. 
+    # boot_diagnostic = {
+    #   use_managed_storage_account = true
+    #   # storage_account_resource_id = ""        # Only valid if use_managed_storage_account = false
+    # }
+
+    # Optional: Uncomment this block to set a key vault where the TF generated password will be. Default is KV in the project subscription.
+    # key_vault = {
+    #   name = ""
+    #   resource_group_name = "Keyvault"
+    # }
+
+
+
     # Optional: Uncomment to set Network Security Rules on the VM. Only available if use_nic_nsg is set to true. 
     # security_rules = {
     #   test = {
