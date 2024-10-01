@@ -4,7 +4,7 @@ locals {
 
   # Use TF generated passwor IF: RBAC authorization is supported on the target KV AND password_overwrite is set to false
   # Use user provided password IF: RBAC authorization is NOT supported on the target KV OR password_overwrite is set to true
-  vm-admin-password = try(var.linux_VM.admin_password, "") == "" ?  random_password.vm-admin-password[0].result : var.windows_VM.admin_password
+  vm-admin-password = try(var.windows_VM.admin_password, "") == "" ?  random_password.vm-admin-password[0].result : var.windows_VM.admin_password
   
   # If we received an ID, then parse the name from the ID, if we received the name, then format appropriately
   backup-policy-name = strcontains(try(var.windows_VM.backup_policy, "daily1"), "/resourceGroups/") ? regex("[^\\/]+$", var.windows_VM.backup_policy) : "${var.env}CNR-${var.group}_${var.project}-${try(var.windows_VM.backup_policy, "daily1")}-rsvp"
