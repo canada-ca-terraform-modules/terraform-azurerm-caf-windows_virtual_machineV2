@@ -153,7 +153,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   tags = merge(var.tags, try(var.windows_VM.tags, {}), [try(var.windows_VM.computer_name, null) != null ? { "OsHostname" = var.windows_VM.computer_name } : null]...)
 
   lifecycle {
-    ignore_changes = [admin_username, admin_password, identity, os_disk, tags]
+    ignore_changes = [admin_username, admin_password, identity, os_disk, ]
   }
 }
 
@@ -224,7 +224,7 @@ resource "azurerm_managed_disk" "data_disks" {
   tags = merge(var.tags, try(each.value.tags, {}))
 
   lifecycle {
-    ignore_changes = [name, create_option, source_resource_id, tags, zone, ]
+    ignore_changes = [name, create_option, source_resource_id, zone, ]
   }
 }
 

@@ -1,6 +1,6 @@
 # A storage account is needed to store the boot diagnostic logs
 module "boot_diagnostic_storage" {
-  source = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-storage_accountV2.git?ref=v1.0.3"
+  source = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-storage_accountV2.git?ref=v1.0.4"
   count = try(var.windows_VM.boot_diagnostic.use_managed_storage_account, true) ? 0 : (try(var.windows_VM.boot_diagnostic, null) != null ? (try(var.windows_VM.boot_diagnostic.storage_account_resource_id, "") == "" ? 1 : 0) : 0)
   userDefinedString    = "${var.userDefinedString}-logs"
   location             = var.location
