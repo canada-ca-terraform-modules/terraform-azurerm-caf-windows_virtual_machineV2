@@ -30,12 +30,6 @@ variable "userDefinedString" {
   type = string
 }
 
-variable "serverType" {
-  description = "3 character string defining the server type for the VM"
-  type = string
-  default = "SWJ"
-}
-
 variable "windows_VM" {
   description = "Object containing all VM parameters"
   type = any
