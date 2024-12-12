@@ -296,3 +296,13 @@ resource "azurerm_network_interface_application_security_group_association" "asg
   application_security_group_id = var.windows_VM.asg.application_security_group_id
 
 }
+
+resource "null_resource" "local-exec" {
+  count = var.custom_data != null ? 1 : 0
+
+  depends_on = [ azurerm_windows_virtual_machine.vm ]
+
+  provisioner "local-exec" {
+    command = "az vm run-command invoke --command-id RunPowerShellScript --name ${local.vm-name} --resource-group ${local.resource_group_name} --scripts \"Get-Content -Path 'C:\\AzureData\\CustomData.bin' | Out-File -FilePath 'C:\\AzureData\\CustomScript.ps1'; Invoke-Expression -Command (Get-Content -Path 'C:\\AzureData\\CustomScript.ps1' -Raw)\""
+  }
+}
