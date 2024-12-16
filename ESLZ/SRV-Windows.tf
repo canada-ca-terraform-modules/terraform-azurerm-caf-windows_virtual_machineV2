@@ -17,5 +17,5 @@ module "windows_VMs" {
   resource_groups = local.resource_groups_all
   subnets = local.subnets
   user_data = try(each.value.user_data, false) != false ? base64encode(file("${path.cwd}/${each.value.user_data}")) : null
-  custom_data = try(each.value.custom_data, false) != false ? each.value.custom_data == "install-certs" ? each.value.custom_data : base64encode(file("${path.cwd}/${each.value.custom_data}")) : null
+  custom_data = try(each.value.custom_data, false) != false ? each.value.custom_data == "install-ca-certs" ? each.value.custom_data : base64encode(file("${path.cwd}/${each.value.custom_data}")) : null
 }
