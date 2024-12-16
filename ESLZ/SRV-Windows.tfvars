@@ -1,7 +1,6 @@
 windows_VMs = {
   test = {
     serverType     = "SWJ"
-    postfix        = "01"
     resource_group = "Project"
     admin_username = "azureadmin"
     # admin_password          = "Canada123!"         # Optional: Only set the password if a generated password cannot be created. See README for details
