@@ -13,6 +13,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   bypass_platform_safety_checks_on_user_schedule_enabled = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, false)
   capacity_reservation_group_id                          = try(var.windows_VM.capacity_reservation_group_id, null)
   computer_name                                          = try(var.windows_VM.computer_name, local.vm-name)
+  custom_data                                            = var.custom_data == "install-ca-certs" ? data.http.custom_data[0].response_body_base64 : var.custom_data
   user_data                                              = var.user_data
   dedicated_host_id                                      = try(var.windows_VM.dedicated_host_id, null)
   dedicated_host_group_id                                = try(var.windows_VM.dedicated_host_group_id, null)
@@ -290,8 +291,20 @@ resource "azurerm_network_interface_backend_address_pool_association" "LB" {
 }
 
 resource "azurerm_network_interface_application_security_group_association" "asg" {
-  count = try(var.windows_VM.asg, null) != null ? 1 : 0
-  network_interface_id = azurerm_network_interface.vm-nic[keys(local.nic_indices)[0]].id
+  count                         = try(var.windows_VM.asg, null) != null ? 1 : 0
+  network_interface_id          = azurerm_network_interface.vm-nic[keys(local.nic_indices)[0]].id
   application_security_group_id = var.windows_VM.asg.application_security_group_id
 
+}
+
+data "azurerm_subscription" "current" {}
+
+resource "null_resource" "local-exec" {
+  count = var.custom_data != null ? 1 : 0
+
+  depends_on = [ azurerm_windows_virtual_machine.vm ]
+
+  provisioner "local-exec" {
+    command = "az vm run-command invoke --command-id RunPowerShellScript --name ${local.vm-name} --resource-group ${local.resource_group_name} --subscription ${data.azurerm_subscription.current.subscription_id } --scripts \"Get-Content -Path 'C:\\AzureData\\CustomData.bin' | Out-File -FilePath 'C:\\AzureData\\CustomScript.ps1'; Invoke-Expression -Command (Get-Content -Path 'C:\\AzureData\\CustomScript.ps1' -Raw)\""
+  }
 }
