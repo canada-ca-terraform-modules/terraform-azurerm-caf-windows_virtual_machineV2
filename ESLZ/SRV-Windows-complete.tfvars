@@ -13,6 +13,7 @@ windows_VMs = {
     patch_assessment_mode    = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
     patch_mode               = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
 
+    custom_data                                              = "install-ca-certs"
     # computer_name                                          = "Example"                                           # Optional: Set this if you need the guest OS Hostname to be different than the Azure resource name
     # user_data                                              = "post_install_scripts/ubuntu/post_install.sh"       # Optional: Set this value with the relative path to the file from your CWD.
     # boot_diagnostic                                        = true
@@ -128,7 +129,7 @@ windows_VMs = {
     #   identity_ids = []
     # }
 
-    
+
     # Optional: Uncomment to configure boot diagnostic. DEfaults to using a managed storage account. 
     # boot_diagnostic = {
     #   use_managed_storage_account = true
