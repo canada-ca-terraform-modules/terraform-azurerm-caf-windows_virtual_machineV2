@@ -18,4 +18,5 @@ module "windows_VMs" {
   subnets = local.subnets
   user_data = try(each.value.user_data, false) != false ? base64encode(file("${path.cwd}/${each.value.user_data}")) : null
   custom_data = try(each.value.custom_data, false) != false ? each.value.custom_data == "install-ca-certs" ? each.value.custom_data : base64encode(file("${path.cwd}/${each.value.custom_data}")) : null
+  tags = var.tags
 }
