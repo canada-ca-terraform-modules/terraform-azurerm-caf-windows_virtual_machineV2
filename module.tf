@@ -24,7 +24,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   eviction_policy                                        = try(var.windows_VM.eviction_policy, null)
   extensions_time_budget                                 = try(var.windows_VM.extensions_time_budget, "PT1H30M")
   hotpatching_enabled                                    = try(var.windows_VM.hotpatching_enabled, false)
-  license_type                                           = try(var.windows_VM.license_type, null)
+  license_type                                           = try(var.windows_VM.license_type, "Windows_Server")
   max_bid_price                                          = try(var.windows_VM.max_bid_price, -1)
   patch_assessment_mode                                  = try(var.windows_VM.patch_assessment_mode, "AutomaticByPlatform")
   patch_mode                                             = try(var.windows_VM.patch_mode, "AutomaticByPlatform")
