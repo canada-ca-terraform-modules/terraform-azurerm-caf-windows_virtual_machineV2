@@ -154,7 +154,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   tags = merge(var.tags, try(var.windows_VM.tags, {}), [try(var.windows_VM.computer_name, null) != null ? { "OsHostname" = var.windows_VM.computer_name } : null]...)
 
   lifecycle {
-    ignore_changes = [admin_username, admin_password, identity, os_disk, gallery_application]
+    ignore_changes = [admin_username, admin_password, identity, os_disk, gallery_application, custom_data]
   }
 }
 
