@@ -10,7 +10,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   # Optional parameters
   allow_extension_operations                             = try(var.windows_VM.allow_extension_operations, true)
   availability_set_id                                    = try(var.windows_VM.availability_set_id, null)
-  bypass_platform_safety_checks_on_user_schedule_enabled = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, false)
+  bypass_platform_safety_checks_on_user_schedule_enabled = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, true)
   capacity_reservation_group_id                          = try(var.windows_VM.capacity_reservation_group_id, null)
   computer_name                                          = try(var.windows_VM.computer_name, local.vm-name)
   custom_data                                            = var.custom_data == "install-ca-certs" ? data.http.custom_data[0].response_body_base64 : var.custom_data
