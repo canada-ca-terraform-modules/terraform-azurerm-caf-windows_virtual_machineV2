@@ -10,7 +10,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   # Optional parameters
   allow_extension_operations                             = try(var.windows_VM.allow_extension_operations, true)
   availability_set_id                                    = try(var.windows_VM.availability_set_id, null)
-  bypass_platform_safety_checks_on_user_schedule_enabled = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, true)
+  bypass_platform_safety_checks_on_user_schedule_enabled = local.bypass_platform_safety_checks
   capacity_reservation_group_id                          = try(var.windows_VM.capacity_reservation_group_id, null)
   computer_name                                          = try(var.windows_VM.computer_name, local.vm-name)
   custom_data                                            = var.custom_data == "install-ca-certs" ? data.http.custom_data[0].response_body_base64 : var.custom_data
@@ -19,7 +19,6 @@ resource "azurerm_windows_virtual_machine" "vm" {
   dedicated_host_group_id                                = try(var.windows_VM.dedicated_host_group_id, null)
   edge_zone                                              = try(var.windows_VM.edge_zone, null)
   disk_controller_type                                   = try(var.windows_VM.disk_controller_type, null)
-  enable_automatic_updates                               = try(var.windows_VM.enable_automatic_updates, true)
   encryption_at_host_enabled                             = try(var.windows_VM.encryption_at_host_enabled, null)
   eviction_policy                                        = try(var.windows_VM.eviction_policy, null)
   extensions_time_budget                                 = try(var.windows_VM.extensions_time_budget, "PT1H30M")
@@ -27,7 +26,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   license_type                                           = try(var.windows_VM.license_type, "Windows_Server")
   max_bid_price                                          = try(var.windows_VM.max_bid_price, -1)
   patch_assessment_mode                                  = try(var.windows_VM.patch_assessment_mode, "AutomaticByPlatform")
-  patch_mode                                             = try(var.windows_VM.patch_mode, "AutomaticByPlatform")
+  patch_mode                                             = local.patch_mode
   platform_fault_domain                                  = try(var.windows_VM.platform_fault_domain, null)
   priority                                               = try(var.windows_VM.priority, "Regular")
   provision_vm_agent                                     = try(var.windows_VM.provision_vm_agent, true)
@@ -37,7 +36,6 @@ resource "azurerm_windows_virtual_machine" "vm" {
   source_image_id                                        = try(var.windows_VM.source_image_id, null)
   timezone                                               = try(var.windows_VM.timezone, "UTC-11")
   virtual_machine_scale_set_id                           = try(var.windows_VM.virtual_machine_scale_set_id, null)
-  vm_agent_platform_updates_enabled                      = try(var.windows_VM.vm_agent_platform_updates_enabled, false)
   vtpm_enabled                                           = try(var.windows_VM.vtpm_enabled, null)
   zone                                                   = try(var.windows_VM.zone, null)
 

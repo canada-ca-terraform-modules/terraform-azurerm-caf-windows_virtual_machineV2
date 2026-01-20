@@ -14,4 +14,14 @@ locals {
   
   # This list is used to organize the nics given to the module, used to determine which NIC will be the primary one. (At index 0)
   nic_indices = {for k, v in var.windows_VM.nic : k => index(keys(var.windows_VM.nic), k)}
+
+  # Backward compatibility: Map deprecated enable_automatic_updates to patch_mode
+  # If patch_mode is provided, use it; otherwise derive from enable_automatic_updates
+  patch_mode = try(var.windows_VM.patch_mode, null) != null ? var.windows_VM.patch_mode : (
+    try(var.windows_VM.enable_automatic_updates, true) ? "AutomaticByPlatform" : "Manual"
+  )
+
+  # Backward compatibility: Map deprecated vm_agent_platform_updates_enabled to bypass_platform_safety_checks_on_user_schedule_enabled
+  # If bypass_platform_safety_checks_on_user_schedule_enabled is provided, use it; otherwise use vm_agent_platform_updates_enabled
+  bypass_platform_safety_checks = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, null) != null ? var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled : try(var.windows_VM.vm_agent_platform_updates_enabled, false)
 }
