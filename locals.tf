@@ -23,5 +23,5 @@ locals {
 
   # Backward compatibility: Map deprecated vm_agent_platform_updates_enabled to bypass_platform_safety_checks_on_user_schedule_enabled
   # If bypass_platform_safety_checks_on_user_schedule_enabled is provided, use it; otherwise use vm_agent_platform_updates_enabled
-  bypass_platform_safety_checks = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, null) != null ? var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled : try(var.windows_VM.vm_agent_platform_updates_enabled, false)
+  bypass_platform_safety_checks = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, null) != null ? var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled : try(var.windows_VM.vm_agent_platform_updates_enabled, true)
 }
