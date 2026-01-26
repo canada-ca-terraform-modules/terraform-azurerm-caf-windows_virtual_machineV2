@@ -33,4 +33,13 @@ resource "azurerm_backup_protected_vm" "backup_vm" {
   exclude_disk_luns = try(var.windows_VM.backup.exclude_disk_luns, null)
   include_disk_luns = try(var.windows_VM.backup.include_disk_luns, null)
   protection_state  = try(var.windows_VM.backup.protection_state, null)
+
+  lifecycle {
+    ignore_changes = [
+      source_vm_id  # Ignore casing differences returned by Azure API
+    ]
+    replace_triggered_by = [
+      azurerm_windows_virtual_machine.vm.id  # Recreate when VM is replaced
+    ]
+  }
 }
