@@ -70,7 +70,7 @@ windows_VMs = {
     # Optional: Uncomment if you need to configure os_disk with different defaults than below. Only supports one os_disk
     # os_disk = {
     #   caching                   = "ReadWrite"
-    #   storage_account_type      = "Standard_LRS"
+    #   storage_account_type      = "StandardSSD_LRS"
     #   disk_size_gb              = 128
     #   write_accelerator_enabled = false
     # }
