@@ -43,7 +43,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   os_disk {
     name                      = "${local.vm-name}-osdisk1"
     caching                   = try(var.windows_VM.os_disk.caching, "ReadWrite")
-    storage_account_type      = try(var.windows_VM.os_disk.storage_account_type, "Standard_LRS")
+    storage_account_type      = try(var.windows_VM.os_disk.storage_account_type, "StandardSSD_LRS")
     disk_size_gb              = try(var.windows_VM.os_disk.disk_size_gb, null)
     write_accelerator_enabled = try(var.windows_VM.write_accelerator_enabled, false)
   }
