@@ -3,13 +3,14 @@ locals {
   group_4                   = substr(var.group, 0, 4)
   project_4                 = substr(var.project, 0, 4)
   userDefinedString-replace = replace("${local.group_4}-${local.project_4}", "_", "-")
-  userDefinedString-clean   = substr(local.userDefinedString-replace, -1, 1) == "-" ? trimsuffix(local.userDefinedString-replace, "-") : local.userDefinedString-replace
   kv_sha                    = substr(sha1(var.resource_groups["Keyvault"].id), 0, 8)
-  name-kv-16                = substr("${local.env_4}CKV-${local.userDefinedString-clean}", 0, 16)
+  name-kv-16                = substr("${local.env_4}CKV-${local.userDefinedString-replace}", 0, 16)
   name-kv-21                = substr("${local.name-kv-16}-${local.kv_sha}", 0, 21)
-  kv_name                   = replace("${local.name-kv-21}-kv", local.name-regex, "")
+  name-kv-21-clean          = replace(local.name-kv-21, "--", "-")   # remove double dash 
+  kv_name                   = replace("${local.name-kv-21-clean}-kv", local.name-regex, "")
   kv_resource_group_name    = try(var.windows_VM.key_vault.resource_group_name, "Keyvault")
 }
+
 
 # Need to get info about the subscription key vault. If password_overwrite is true, then don't bother since we  won't use it
 data "azurerm_key_vault" "key_vault" {
