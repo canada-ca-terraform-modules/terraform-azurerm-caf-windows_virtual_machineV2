@@ -25,6 +25,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   hotpatching_enabled                                    = try(var.windows_VM.hotpatching_enabled, false)
   license_type                                           = try(var.windows_VM.license_type, "Windows_Server")
   max_bid_price                                          = try(var.windows_VM.max_bid_price, -1)
+  automatic_updates_enabled                              = try(var.windows_VM.automatic_updates_enabled, try(var.windows_VM.enable_automatic_updates, true))
   patch_assessment_mode                                  = try(var.windows_VM.patch_assessment_mode, "AutomaticByPlatform")
   patch_mode                                             = local.patch_mode
   platform_fault_domain                                  = try(var.windows_VM.platform_fault_domain, null)
@@ -68,10 +69,10 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 
   dynamic "additional_unattend_content" {
-    for_each = try(var.windows_VM.additional_unattend_content, null) != null ? [1] : []
+    for_each = try(var.windows_VM.additional_unattend_content, null) != null ? [var.windows_VM.additional_unattend_content] : []
     content {
-      content = each.value.additional_unattend_content.content
-      setting = each.value.additional_unattend_content.setting
+      content = additional_unattend_content.value.content
+      setting = additional_unattend_content.value.setting
     }
   }
 
@@ -83,14 +84,14 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 
   dynamic "gallery_application" {
-    for_each = try(var.windows_VM.gallery_application, null) != null ? [1] : []
+    for_each = try(var.windows_VM.gallery_application, null) != null ? [var.windows_VM.gallery_application] : []
     content {
-      version_id                                  = each.value.gallery_application.version_id
-      automatic_upgrade_enabled                   = try(each.value.gallery_application.automatic_upgrade_enabled, false)
-      configuration_blob_uri                      = try(each.value.gallery_application.configuration_blob_uri, null)
-      order                                       = try(each.value.gallery_application.order, 0)
-      tag                                         = try(each.value.gallery_application.tag, null)
-      treat_failure_as_deployment_failure_enabled = try(each.value.gallery_application.treat_failure_as_deployment_failure_enabled, false)
+      version_id                                  = gallery_application.value.version_id
+      automatic_upgrade_enabled                   = try(gallery_application.value.automatic_upgrade_enabled, false)
+      configuration_blob_uri                      = try(gallery_application.value.configuration_blob_uri, null)
+      order                                       = try(gallery_application.value.order, 0)
+      tag                                         = try(gallery_application.value.tag, null)
+      treat_failure_as_deployment_failure_enabled = try(gallery_application.value.treat_failure_as_deployment_failure_enabled, false)
     }
   }
 
@@ -104,16 +105,16 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 
   dynamic "secret" {
-    for_each = try(var.windows_VM.secret, null) != null ? [1] : []
+    for_each = try(var.windows_VM.secret, null) != null ? [var.windows_VM.secret] : []
     content {
       dynamic "certificate" {
-        for_each = var.windows_VM.secret.certificate
+        for_each = secret.value.certificate
         content {
-          store = each.value.certificate.store
-          url   = each.value.certificate.url
+          store = certificate.value.store
+          url   = certificate.value.url
         }
       }
-      key_vault_id = var.windows_VM.certificate.key_vault_id
+      key_vault_id = secret.value.key_vault_id
     }
   }
 
@@ -129,7 +130,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   dynamic "os_image_notification" {
     for_each = try(var.windows_VM.os_image_notification, null) != null ? [1] : []
     content {
-      timeout = try(var.windows_VM.os_image_notification, "PT15M")
+      timeout = try(var.windows_VM.os_image_notification.timeout, "PT15M")
     }
   }
 
@@ -142,10 +143,10 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 
   dynamic "winrm_listener" {
-    for_each = try(var.windows_VM.winrm_listener, null) != null ? [1] : []
+    for_each = try(var.windows_VM.winrm_listener, null) != null ? try(tolist(var.windows_VM.winrm_listener), [var.windows_VM.winrm_listener]) : []
     content {
-      protocol        = each.value.winrm_listener.protocol
-      certificate_url = try(each.value.winrm_listener.certificate_url, null)
+      protocol        = winrm_listener.value.protocol
+      certificate_url = try(winrm_listener.value.certificate_url, null)
     }
   }
 
@@ -177,7 +178,7 @@ resource "azurerm_network_interface" "vm-nic" {
     private_ip_address_allocation = try(each.value.private_ip_address_allocation, "Dynamic")
     private_ip_address            = try(each.value.private_ip_address_allocation, "Dynamic") == "Dynamic" ? null : each.value.private_ip_address
     subnet_id                     = strcontains(each.value.subnet, "/resourceGroups/") ? each.value.subnet : var.subnets[each.value.subnet].id
-    private_ip_address_version    = try(each.value.nic.private_ip_address_version, "IPv4")
+    private_ip_address_version    = try(each.value.private_ip_address_version, "IPv4")
     primary                       = local.nic_indices[each.key] == 0 ? true : false
 
   }
@@ -300,9 +301,9 @@ data "azurerm_subscription" "current" {}
 resource "null_resource" "local-exec" {
   count = var.custom_data != null ? 1 : 0
 
-  depends_on = [ azurerm_windows_virtual_machine.vm ]
+  depends_on = [azurerm_windows_virtual_machine.vm]
 
   provisioner "local-exec" {
-    command = "az vm run-command invoke --command-id RunPowerShellScript --name ${local.vm-name} --resource-group ${local.resource_group_name} --subscription ${data.azurerm_subscription.current.subscription_id } --scripts \"Get-Content -Path 'C:\\AzureData\\CustomData.bin' | Out-File -FilePath 'C:\\AzureData\\CustomScript.ps1'; Invoke-Expression -Command (Get-Content -Path 'C:\\AzureData\\CustomScript.ps1' -Raw)\""
+    command = "az vm run-command invoke --command-id RunPowerShellScript --name ${local.vm-name} --resource-group ${local.resource_group_name} --subscription ${data.azurerm_subscription.current.subscription_id} --scripts \"Get-Content -Path 'C:\\AzureData\\CustomData.bin' | Out-File -FilePath 'C:\\AzureData\\CustomScript.ps1'; Invoke-Expression -Command (Get-Content -Path 'C:\\AzureData\\CustomScript.ps1' -Raw)\""
   }
 }

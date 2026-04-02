@@ -7,13 +7,22 @@ windows_VMs = {
     # admin_password          = "Canada123!"                          # Optional: Only set the password if a generated password cannot be created. See README for details
     vm_size = "Standard_D2s_v5"
 
-    backup_policy = "daily1" # Optional: Set this value to configure backup policy on the VM. Can be either userDefinedString portion of the policy name or ID. Defaults to daily1 
-    # disable_backup           = false                                                                             # Optional: Set this value to true if you want to disable backups on this VM    
-    enable_automatic_updates = true                  # (Optional) Specifies if Automatic Updates are Enabled for the Windows Virtual Machine. Changing this forces a new resource to be created.
-    patch_assessment_mode    = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
-    patch_mode               = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
+    backup_policy = "daily1" # Optional: Set this value to configure backup policy on the VM. Can be either userDefinedString portion of the policy name or ID. Defaults to daily1
+    # disable_backup = false  # Optional: Set this to true to skip backup entirely
+    # jump_server    = false  # Optional: Set to true to skip backup and use a dedicated boot-diagnostic storage account
 
-    custom_data                                              = "install-ca-certs"
+    # Optional: fine-grained backup disk filtering (sub-block, requires disable_backup = false)
+    # backup = {
+    #   exclude_disk_luns = []   # LUNs to exclude from backup
+    #   include_disk_luns = []   # LUNs to include in backup (mutually exclusive with exclude)
+    #   protection_state  = ""   # e.g. "ProtectionStopped"
+    # }
+
+    automatic_updates_enabled = true                  # (Optional) azurerm 4.x — controls Windows automatic updates. Use instead of or alongside enable_automatic_updates.
+    patch_assessment_mode     = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
+    patch_mode                = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
+
+    custom_data = "install-ca-certs"
     # computer_name                                          = "Example"                                           # Optional: Set this if you need the guest OS Hostname to be different than the Azure resource name
     # user_data                                              = "post_install_scripts/ubuntu/post_install.sh"       # Optional: Set this value with the relative path to the file from your CWD.
     # boot_diagnostic                                        = true
@@ -38,11 +47,11 @@ windows_VMs = {
     # proximity_placement_group_id                           = ""
     # reboot_setting                                         = "Never"
     # secure_boot_enabled                                    = false
-    # source_image_id                                        = ""
+    # source_image_id                                        = ""  # Provide an image ID instead of storage_image_reference; when set, the storage_image_reference block is ignored
     # timezone                                               = "UTC-11"
     # virtual_machine_scale_set_id                           = ""
-    # vm_agent_platform_updates_enabled                      = false
     # vtpm_enabled                                           = ""
+    # write_accelerator_enabled                              = false  # Top-level; enables write accelerator on the OS disk (requires Premium storage + caching=None)
     # zone                                                   = ""
 
     # At least one nic is required. If more than one is present, the first nic in the list will be the primary one.
@@ -69,10 +78,9 @@ windows_VMs = {
 
     # Optional: Uncomment if you need to configure os_disk with different defaults than below. Only supports one os_disk
     # os_disk = {
-    #   caching                   = "ReadWrite"
-    #   storage_account_type      = "StandardSSD_LRS"
-    #   disk_size_gb              = 128
-    #   write_accelerator_enabled = false
+    #   caching              = "ReadWrite"
+    #   storage_account_type = "StandardSSD_LRS"
+    #   disk_size_gb         = 128
     # }
 
     # Optional: Uncomment and configure data disks for the VM. Can create more than one data disks.
@@ -137,7 +145,7 @@ windows_VMs = {
     # }
 
     # Optional: Uncomment this block to set a key vault where the TF generated password will be. Default is KV in the project subscription.
-    # key_vault = {
+    # keyvault = {
     #   name = ""
     #   resource_group_name = "Keyvault"
     # }
