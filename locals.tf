@@ -21,6 +21,9 @@ locals {
     try(var.windows_VM.enable_automatic_updates, true) ? "AutomaticByPlatform" : "Manual"
   )
 
-  # Backward compatibility: use explicit arg with default; vm_agent_platform_updates_enabled is read-only in azurerm 4.x
+  # bypass_platform_safety_checks_on_user_schedule_enabled — default true (required when patch_mode = AutomaticByPlatform).
+  # MIGRATION NOTE (azurerm 4.x): vm_agent_platform_updates_enabled is now read-only and can no longer be set.
+  # Callers who had vm_agent_platform_updates_enabled = false must switch to
+  # bypass_platform_safety_checks_on_user_schedule_enabled = false explicitly.
   bypass_platform_safety_checks = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, true)
 }

@@ -6,8 +6,10 @@ windows_VMs = {
     # admin_password = "Canada123!"  # Optional: Only set the password if a generated password cannot be created. See README for details
     vm_size = "Standard_D2s_v5"
 
-    # backup_policy = "daily1"                       # Optional: Set this value to configure backup policy on the VM. Can be either userDefinedString portion of the policy name or ID. Defaults to daily1 
-    # disable_backup         = false                 # Optional: Set this value to true if you want to disable backups on this VM    
+    # backup_policy = "daily1"  # Optional: name or ARM resource ID of the backup policy.
+    #   Regular VMs: accepts a name (resolved to ARM ID via data source) or a full ARM ID
+    #   jump_server = true:  MUST be a full ARM resource ID — no data source lookup is performed
+    # disable_backup = false    # Optional: Set to true to skip backup entirely    
     automatic_updates_enabled = true # (Optional) azurerm 4.x — controls Windows automatic updates. Defaults to true.
     # enable_automatic_updates = true # Legacy alias — still accepted for backward compatibility
     patch_assessment_mode = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 

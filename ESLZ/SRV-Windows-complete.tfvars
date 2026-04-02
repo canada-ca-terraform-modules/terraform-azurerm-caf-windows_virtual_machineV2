@@ -7,9 +7,11 @@ windows_VMs = {
     # admin_password          = "Canada123!"                          # Optional: Only set the password if a generated password cannot be created. See README for details
     vm_size = "Standard_D2s_v5"
 
-    backup_policy = "daily1" # Optional: Set this value to configure backup policy on the VM. Can be either userDefinedString portion of the policy name or ID. Defaults to daily1
-    # disable_backup = false  # Optional: Set this to true to skip backup entirely
-    # jump_server    = false  # Optional: Set to true to skip backup and use a dedicated boot-diagnostic storage account
+    backup_policy = "daily1" # Optional: name or ARM resource ID of the backup policy.
+    #   Regular VMs: accepts a name (resolved to ARM ID via data source) or a full ARM ID
+    #   jump_server = true:  MUST be a full ARM resource ID — no data source lookup is performed
+    # disable_backup = false  # Optional: Set to true to skip backup entirely
+    # jump_server    = false  # Optional: Set to true to skip backup data-source lookup; backup_policy must then be a full ARM ID
 
     # Optional: fine-grained backup disk filtering (sub-block, requires disable_backup = false)
     # backup = {
