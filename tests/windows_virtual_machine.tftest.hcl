@@ -152,3 +152,43 @@ run "static_nic_ip" {
     error_message = "NIC must use Static IP allocation when configured"
   }
 }
+
+run "gallery_application_list" {
+  command = plan
+  variables {
+    windows_VM = {
+      serverType     = "SWJ"
+      resource_group = "Project"
+      admin_username = "azureadmin"
+      admin_password = "TestP@ss123!"
+      vm_size        = "Standard_D2s_v5"
+      jump_server    = true
+      disable_backup = true
+      nic = {
+        nic1 = {
+          subnet                        = "OZ"
+          private_ip_address_allocation = "Dynamic"
+        }
+      }
+      storage_image_reference = {
+        publisher = "MicrosoftWindowsServer"
+        offer     = "WindowsServer"
+        sku       = "2022-datacenter-g2"
+        version   = "latest"
+      }
+      gallery_application = [
+        {
+          version_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Compute/galleries/gal/applications/app1/versions/1.0.0"
+        },
+        {
+          version_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg/providers/Microsoft.Compute/galleries/gal/applications/app2/versions/2.0.0"
+          order      = 1
+        }
+      ]
+    }
+  }
+  assert {
+    condition     = azurerm_windows_virtual_machine.vm.name == "Dev1SWJ-test"
+    error_message = "VM name must be correct when gallery_application list is provided"
+  }
+}

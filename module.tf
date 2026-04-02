@@ -84,7 +84,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 
   dynamic "gallery_application" {
-    for_each = try(var.windows_VM.gallery_application, null) != null ? [var.windows_VM.gallery_application] : []
+    for_each = try(var.windows_VM.gallery_application, null) != null ? try(tolist(var.windows_VM.gallery_application), [var.windows_VM.gallery_application]) : []
     content {
       version_id                                  = gallery_application.value.version_id
       automatic_upgrade_enabled                   = try(gallery_application.value.automatic_upgrade_enabled, false)
