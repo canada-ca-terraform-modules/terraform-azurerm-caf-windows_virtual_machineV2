@@ -63,6 +63,7 @@ windows_VMs = {
         private_ip_address_allocation = "Static"
         private_ip_address            = "172.17.65.8"
 
+        # ip_configuration_name          = ""  # Optional: Override the default IP configuration name (default: <vm-name>-ipconfigN)
         # dns_servers                    = []
         # edge_zone                      = ""
         # ip_forwarding_enabled          = false

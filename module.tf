@@ -174,7 +174,7 @@ resource "azurerm_network_interface" "vm-nic" {
 
   # The first NIC in the list will always be the primary
   ip_configuration {
-    name                          = "${local.vm-name}-ipconfig${local.nic_indices[each.key] + 1}"
+    name                          = try(each.value.ip_configuration_name, "${local.vm-name}-ipconfig${local.nic_indices[each.key] + 1}")
     private_ip_address_allocation = try(each.value.private_ip_address_allocation, "Dynamic")
     private_ip_address            = try(each.value.private_ip_address_allocation, "Dynamic") == "Dynamic" ? null : each.value.private_ip_address
     subnet_id                     = strcontains(each.value.subnet, "/resourceGroups/") ? each.value.subnet : var.subnets[each.value.subnet].id
