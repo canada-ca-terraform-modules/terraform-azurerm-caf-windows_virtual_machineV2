@@ -4,5 +4,5 @@ locals {
 
 data "http" "custom_data" {
   count = var.custom_data == "install-ca-certs" ? 1 : 0
-  url = local.custom_data_url
+  url   = local.custom_data_url
 }

@@ -1,19 +1,19 @@
 locals {
   # If resource_group was an ID, then parse the ID for the name, if not, then search in the provided resource_groups object
-  resource_group_name = strcontains(var.windows_VM.resource_group, "/resourceGroups/") ? regex("[^\\/]+$", var.windows_VM.resource_group) :  var.resource_groups[var.windows_VM.resource_group].name
+  resource_group_name = strcontains(var.windows_VM.resource_group, "/resourceGroups/") ? regex("[^/]+$", var.windows_VM.resource_group) : var.resource_groups[var.windows_VM.resource_group].name
 
   # Use TF generated passwor IF: RBAC authorization is supported on the target KV AND password_overwrite is set to false
   # Use user provided password IF: RBAC authorization is NOT supported on the target KV OR password_overwrite is set to true
-  vm-admin-password = try(var.windows_VM.admin_password, "") == "" ?  random_password.vm-admin-password[0].result : var.windows_VM.admin_password
-  
+  vm-admin-password = try(var.windows_VM.admin_password, "") == "" ? random_password.vm-admin-password[0].result : var.windows_VM.admin_password
+
   # If we received an ID, then parse the name from the ID, if we received the name, then format appropriately
-  backup-policy-name = strcontains(try(var.windows_VM.backup_policy, "daily1"), "/resourceGroups/") ? regex("[^\\/]+$", var.windows_VM.backup_policy) : "${var.env}CNR-${var.group}_${var.project}-${try(var.windows_VM.backup_policy, "daily1")}-rsvp"
+  backup-policy-name = strcontains(try(var.windows_VM.backup_policy, "daily1"), "/resourceGroups/") ? regex("[^/]+$", var.windows_VM.backup_policy) : "${var.env}CNR-${var.group}_${var.project}-${try(var.windows_VM.backup_policy, "daily1")}-rsvp"
 
   # List of NIC ids, necessary to build a list since we might have more than one NIC created
   nics = [for nic in azurerm_network_interface.vm-nic : nic.id]
-  
+
   # This list is used to organize the nics given to the module, used to determine which NIC will be the primary one. (At index 0)
-  nic_indices = {for k, v in var.windows_VM.nic : k => index(keys(var.windows_VM.nic), k)}
+  nic_indices = { for k, v in var.windows_VM.nic : k => index(keys(var.windows_VM.nic), k) }
 
   # Backward compatibility: Map deprecated enable_automatic_updates to patch_mode
   # If patch_mode is provided, use it; otherwise derive from enable_automatic_updates
@@ -21,7 +21,9 @@ locals {
     try(var.windows_VM.enable_automatic_updates, true) ? "AutomaticByPlatform" : "Manual"
   )
 
-  # Backward compatibility: Map deprecated vm_agent_platform_updates_enabled to bypass_platform_safety_checks_on_user_schedule_enabled
-  # If bypass_platform_safety_checks_on_user_schedule_enabled is provided, use it; otherwise use vm_agent_platform_updates_enabled
-  bypass_platform_safety_checks = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, null) != null ? var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled : try(var.windows_VM.vm_agent_platform_updates_enabled, true)
+  # bypass_platform_safety_checks_on_user_schedule_enabled — default true (required when patch_mode = AutomaticByPlatform).
+  # MIGRATION NOTE (azurerm 4.x): vm_agent_platform_updates_enabled is now read-only and can no longer be set.
+  # Callers who had vm_agent_platform_updates_enabled = false must switch to
+  # bypass_platform_safety_checks_on_user_schedule_enabled = false explicitly.
+  bypass_platform_safety_checks = try(var.windows_VM.bypass_platform_safety_checks_on_user_schedule_enabled, true)
 }
