@@ -1,5 +1,5 @@
 resource "azurerm_windows_virtual_machine" "vm" {
-  name                  = try(var.windows_VM.vm_name, local.vm-name)
+  name                  = local.vm-name
   location              = var.location
   resource_group_name   = local.resource_group_name
   size                  = var.windows_VM.vm_size
@@ -42,7 +42,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 
   # Only one OS disk is accepted. Default size is 128Gb. 
   os_disk {
-    name                      = try(var.windows_VM.os_disk.name, "${local.vm-name}-osdisk1")
+    name                      = "${local.vm-name}-osdisk1"
     caching                   = try(var.windows_VM.os_disk.caching, "ReadWrite")
     storage_account_type      = try(var.windows_VM.os_disk.storage_account_type, "StandardSSD_LRS")
     disk_size_gb              = try(var.windows_VM.os_disk.disk_size_gb, null)
@@ -160,7 +160,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
 # More than one NIC can be configured
 resource "azurerm_network_interface" "vm-nic" {
   for_each            = var.windows_VM.nic
-  name                = try(each.value.name, "${local.vm-name}-nic${local.nic_indices[each.key] + 1}")
+  name                = "${local.vm-name}-nic${local.nic_indices[each.key] + 1}"
   location            = var.location
   resource_group_name = local.resource_group_name
 
@@ -187,7 +187,7 @@ resource "azurerm_network_interface" "vm-nic" {
 resource "azurerm_managed_disk" "data_disks" {
   for_each = try(var.windows_VM.data_disks, {})
 
-  name                 = try(each.value.name, "${local.vm-name}-datadisk${each.value.lun + 1}")
+  name                 = "${local.vm-name}-datadisk${each.value.lun + 1}"
   resource_group_name  = local.resource_group_name
   location             = var.location
   storage_account_type = try(each.value.os_managed_disk_type, "StandardSSD_LRS")
@@ -246,7 +246,7 @@ resource "azurerm_virtual_machine_data_disk_attachment" "data_disks_attachment" 
 # NSG usually set on subnet level, adding it here for inevitable edge cases
 resource "azurerm_network_security_group" "NSG" {
   count               = try(var.windows_VM.use_nic_nsg, false) ? 1 : 0
-  name                = try(var.windows_VM.nsg_name, "${local.vm-name}-nsg")
+  name                = "${local.vm-name}-nsg"
   location            = var.location
   resource_group_name = local.resource_group_name
 

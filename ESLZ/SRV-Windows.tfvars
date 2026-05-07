@@ -16,9 +16,6 @@ windows_VMs = {
     patch_mode            = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
 
     custom_data = "install-ca-certs"
-    # vm_name          = ""  # Optional: Override the auto-generated VM name (default: {env4}{serverType3}-{userDefinedString7})
-    # nsg_name         = ""  # Optional: Override the auto-generated NSG name (default: <vm-name>-nsg)
-    # kv_secret_name   = ""  # Optional: Override the Key Vault secret name for the admin password (default: <vm-name>-vm-admin-password)
     # computer_name          = "Example"                                           # Optional: Set this if you need the guest OS Hostname to be different than the Azure resource name
     # user_data              = "post_install_scripts/ubuntu/post_install.sh"       # Optional: Set this value with the relative path to the file from your CWD.
     # boot_diagnostic        = true
@@ -30,8 +27,6 @@ windows_VMs = {
         subnet                        = "OZ"
         private_ip_address_allocation = "Static"
         private_ip_address            = "172.17.65.8"
-
-        # name                           = ""  # Optional: Override the auto-generated NIC name (default: <vm-name>-nicN)
 
         # ip_configuration_name          = ""  # Optional: Override the default IP configuration name (default: <vm-name>-ipconfigN)
         # dns_servers                    = []
