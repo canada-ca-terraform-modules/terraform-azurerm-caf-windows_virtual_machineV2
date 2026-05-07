@@ -192,3 +192,35 @@ run "gallery_application_list" {
     error_message = "VM name must be correct when gallery_application list is provided"
   }
 }
+
+run "ip_configuration_name_override" {
+  command = plan
+  variables {
+    windows_VM = {
+      serverType     = "SWJ"
+      resource_group = "Project"
+      admin_username = "azureadmin"
+      admin_password = "TestP@ss123!"
+      vm_size        = "Standard_D2s_v5"
+      jump_server    = true
+      disable_backup = true
+      nic = {
+        nic1 = {
+          subnet                        = "OZ"
+          private_ip_address_allocation = "Dynamic"
+          ip_configuration_name         = "custom-ipconfig-name"
+        }
+      }
+      storage_image_reference = {
+        publisher = "MicrosoftWindowsServer"
+        offer     = "WindowsServer"
+        sku       = "2022-datacenter-g2"
+        version   = "latest"
+      }
+    }
+  }
+  assert {
+    condition     = azurerm_network_interface.vm-nic["nic1"].ip_configuration[0].name == "custom-ipconfig-name"
+    error_message = "NIC IP configuration name must use ip_configuration_name when provided"
+  }
+}
