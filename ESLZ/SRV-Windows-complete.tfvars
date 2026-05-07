@@ -25,6 +25,9 @@ windows_VMs = {
     patch_mode                = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
 
     custom_data = "install-ca-certs"
+    # vm_name                                                = ""  # Optional: Override the auto-generated VM name (default: {env4}{serverType3}-{userDefinedString7})
+    # nsg_name                                               = ""  # Optional: Override the auto-generated NSG name (default: <vm-name>-nsg; only relevant when use_nic_nsg = true)
+    # kv_secret_name                                         = ""  # Optional: Override the Key Vault secret name used to store the generated admin password (default: <vm-name>-vm-admin-password)
     # computer_name                                          = "Example"                                           # Optional: Set this if you need the guest OS Hostname to be different than the Azure resource name
     # user_data                                              = "post_install_scripts/ubuntu/post_install.sh"       # Optional: Set this value with the relative path to the file from your CWD.
     # boot_diagnostic                                        = true
@@ -63,6 +66,8 @@ windows_VMs = {
         private_ip_address_allocation = "Static"
         private_ip_address            = "172.17.65.8"
 
+        # name                           = ""  # Optional: Override the auto-generated NIC name (default: <vm-name>-nicN)
+
         # ip_configuration_name          = ""  # Optional: Override the default IP configuration name (default: <vm-name>-ipconfigN)
         # dns_servers                    = []
         # edge_zone                      = ""
@@ -84,6 +89,7 @@ windows_VMs = {
     #   caching              = "ReadWrite"
     #   storage_account_type = "StandardSSD_LRS"
     #   disk_size_gb         = 128
+    #   # name               = ""  # Optional: Override the auto-generated OS disk name (default: <vm-name>-osdisk1)
     # }
 
     # Optional: Uncomment and configure data disks for the VM. Can create more than one data disks.
@@ -94,6 +100,7 @@ windows_VMs = {
     #     disk_size_gb         = 500
     #     lun                  = 0
     #     caching              = "ReadWrite"
+    #     # name               = ""  # Optional: Override the auto-generated disk name (default: <vm-name>-datadiskN where N = lun+1)
     #     # disk_iops_read_write                 = null
     #     # disk_mbps_read_write                 = null
     #     # disk_iops_read_only                  = null
