@@ -38,7 +38,7 @@ resource "random_password" "vm-admin-password" {
 # Creates a secret in the subscription keyvault if a generated password is necessary. Since it will be only an inital password, ignore all changes to it
 resource "azurerm_key_vault_secret" "vm-admin-password" {
   count        = try(var.windows_VM.admin_password, "") == "" ? 1 : 0
-  name         = "${local.vm-name}-vm-admin-password"
+  name         = try(var.windows_VM.kv_secret_name, "${local.vm-name}-vm-admin-password")
   value        = random_password.vm-admin-password[0].result
   key_vault_id = data.azurerm_key_vault.key_vault[0].id
   content_type = "password"
