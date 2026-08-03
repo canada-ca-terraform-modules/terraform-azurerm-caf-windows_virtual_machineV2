@@ -308,13 +308,24 @@ When `jump_server = true` the module skips the Recovery Services Vault data sour
 
 For regular VMs (no `jump_server`) a short name such as `"daily1"` is accepted and resolved automatically.
 
+## Migration notes (azurerm 5.x)
+
+This module's resource set (`azurerm_windows_virtual_machine`, `azurerm_network_interface`, `azurerm_managed_disk`, `azurerm_virtual_machine_data_disk_attachment`, `azurerm_network_security_group`, the NIC association resources, `azurerm_backup_protected_vm`, `azurerm_dev_test_global_vm_shutdown_schedule`, and the `azurerm_key_vault`/`azurerm_recovery_services_vault`/`azurerm_backup_policy_vm`/`azurerm_subscription` data sources) has **no breaking argument changes** in azurerm 5.0 — existing tfvars continue to work unchanged.
+
+Callers configuring the `azurerm` provider block directly (root/L1 blueprints, not this module) should be aware of two provider-level defaults that changed in 5.0:
+
+- `resource_provider_registrations` now defaults to `none` instead of `legacy` — Resource Providers are no longer auto-registered. Set `resource_provider_registrations = "legacy"` in the `provider "azurerm"` block to keep the previous behaviour, or list specific RPs via `resource_providers_to_register`.
+- `features.enhanced_validation` (location/resource-provider validation at plan time) now defaults to disabled. Re-enable via `features { enhanced_validation { locations = true, resource_providers = true } }` if you rely on catching these errors at `plan` time.
+
+Neither setting is configured by this module — they must be set in the calling root module's `provider "azurerm"` block if the legacy behaviour is desired.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 4.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 5.0 |
 | <a name="requirement_http"></a> [http](#requirement\_http) | ~> 3.0 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | ~> 3.0 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.0 |
@@ -323,16 +334,16 @@ For regular VMs (no `jump_server`) a short name such as `"daily1"` is accepted a
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 4.0 |
-| <a name="provider_http"></a> [http](#provider\_http) | ~> 3.0 |
-| <a name="provider_null"></a> [null](#provider\_null) | ~> 3.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 5.0.1 |
+| <a name="provider_http"></a> [http](#provider\_http) | 3.6.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.3.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.9.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_boot_diagnostic_storage"></a> [boot\_diagnostic\_storage](#module\_boot\_diagnostic\_storage) | github.com/canada-ca-terraform-modules/terraform-azurerm-caf-storage_accountV2.git | v1.1.0 |
+| <a name="module_boot_diagnostic_storage"></a> [boot\_diagnostic\_storage](#module\_boot\_diagnostic\_storage) | github.com/canada-ca-terraform-modules/terraform-azurerm-caf-storage_accountV2.git | v1.2.0 |
 
 ## Resources
 
