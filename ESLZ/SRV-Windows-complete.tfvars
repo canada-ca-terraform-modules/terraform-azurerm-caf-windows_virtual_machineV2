@@ -20,7 +20,7 @@ windows_VMs = {
     #   protection_state  = ""   # e.g. "ProtectionStopped"
     # }
 
-    automatic_updates_enabled = true                  # (Optional) azurerm 4.x — controls Windows automatic updates. Use instead of or alongside enable_automatic_updates.
+    automatic_updates_enabled = true                  # (Optional) Controls Windows automatic updates (valid in azurerm 4.x and 5.x). Use instead of or alongside enable_automatic_updates.
     patch_assessment_mode     = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
     patch_mode                = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
 

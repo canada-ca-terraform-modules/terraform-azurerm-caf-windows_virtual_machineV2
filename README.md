@@ -8,7 +8,7 @@ Deploys an Azure Windows Virtual Machine with associated NICs, managed disks, ba
 
 | Name    | Version |
 | ------- | ------- |
-| azurerm | 4.0.0   |
+| azurerm | ~> 5.0  |
 | random  | n/a     |
 
 ## Inputs

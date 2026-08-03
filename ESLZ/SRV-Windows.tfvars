@@ -10,7 +10,7 @@ windows_VMs = {
     #   Regular VMs: accepts a name (resolved to ARM ID via data source) or a full ARM ID
     #   jump_server = true:  MUST be a full ARM resource ID — no data source lookup is performed
     # disable_backup = false    # Optional: Set to true to skip backup entirely    
-    automatic_updates_enabled = true # (Optional) azurerm 4.x — controls Windows automatic updates. Defaults to true.
+    automatic_updates_enabled = true # (Optional) Controls Windows automatic updates (valid in azurerm 4.x and 5.x). Defaults to true.
     # enable_automatic_updates = true # Legacy alias — still accepted for backward compatibility
     patch_assessment_mode = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
     patch_mode            = "AutomaticByPlatform" # force settings to AutomaticByPlatform for UMC OS patching 
