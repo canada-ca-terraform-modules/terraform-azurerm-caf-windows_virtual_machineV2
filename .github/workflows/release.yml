@@ -1,0 +1,74 @@
+# Creates a GitHub release whenever a PR merges to main, using the module
+# version pinned in ESLZ/SRV-Windows.tf's own source ref as the release tag —
+# that ref is what module callers actually consume, so it's the only version
+# number that matters here.
+#
+# Idempotent by design: most PRs merging to main won't bump the ESLZ ref (e.g.
+# a docs or CI-only change), so the "release already exists" check makes this
+# a no-op for those merges instead of failing or creating a duplicate/empty
+# release.
+name: Release on merge
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - name: Extract version from ESLZ/SRV-Windows.tf
+        id: version
+        run: |
+          VERSION=$(grep -oP 'ref=\Kv[0-9]+\.[0-9]+\.[0-9]+' ESLZ/SRV-Windows.tf | head -1)
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not extract a vX.Y.Z ref from ESLZ/SRV-Windows.tf"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether this version is already released
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # PR title/body are untrusted user input - passed only via env vars
+      # (never interpolated directly into the run: script) to avoid shell/
+      # script injection. See:
+      # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#understanding-the-risk-of-script-injections
+      - name: Create release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          NOTES="$PR_BODY"
+          if [ -z "$NOTES" ]; then
+            NOTES="No description provided in PR #$PR_NUMBER ($PR_TITLE)."
+          fi
+          printf '%s' "$NOTES" > /tmp/release-notes.md
+
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes-file /tmp/release-notes.md \
+            --target main

@@ -9,7 +9,7 @@ variable "windows_VMs" {
 }
 
 module "windows_VMs" {
-  source   = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-windows_virtual_machineV2.git?ref=v1.1.1"
+  source   = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-windows_virtual_machineV2.git?ref=v1.2.0"
   for_each = var.windows_VMs
 
   location          = var.location

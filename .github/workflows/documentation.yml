@@ -1,3 +1,5 @@
+# Actions pinned to commit SHA (not just tag) - Supply Chain Security best
+# practice for PBMM/government contexts; tags are mutable, commit SHAs are not.
 name: Generate terraform docs
 on:
   workflow_dispatch:
@@ -10,12 +12,12 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Render terraform docs inside the README.md and push changes back to PR branch
-        uses: terraform-docs/gh-actions@v1.4.1
+        uses: terraform-docs/gh-actions@6de6da0cefcc6b4b7a5cbea4d79d97060733093c # v1.4.1
         with:
           working-dir: .
           output-file: README.md
