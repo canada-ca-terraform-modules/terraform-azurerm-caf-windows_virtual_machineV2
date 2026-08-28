@@ -1,3 +1,7 @@
+# Wired to .github/workflows/live-test.yml (see that PR for the workflow
+# file itself - split into two PRs per the module-live-test-conversion skill
+# to avoid the "Baseline apply checks out the target branch" chicken-and-egg
+# problem).
 terraform {
   required_version = ">= 1.9"
   required_providers {
