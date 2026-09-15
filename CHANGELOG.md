@@ -4,6 +4,13 @@ All notable changes to this module are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Changed
+
+- `custom_data` now accepts an arbitrary `http://`/`https://` URL, which is fetched via the `http` data source and used as the VM's custom data (Activities [#5632](https://dev.azure.com/Azure163ent-CloudOperations/Activities/_workitems/edit/5632)). The legacy `"install-ca-certs"` magic string is still supported and continues to resolve to the module's default customdata script URL. Any other value is passed through unchanged, as before.
+- `ESLZ/SRV-Windows.tf` updated so `custom_data` values containing `://` (i.e. URLs) are passed straight through to the module instead of being treated as a local file path.
+
 ## [1.2.0] - 2026-08-03
 
 ### Changed

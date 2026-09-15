@@ -372,7 +372,7 @@ Neither setting is configured by this module — they must be set in the calling
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_custom_data"></a> [custom\_data](#input\_custom\_data) | Base64 encoded file representing user data script for the VM | `any` | `null` | no |
+| <a name="input_custom_data"></a> [custom\_data](#input\_custom\_data) | Base64 encoded file representing user data script for the VM. Also accepts the legacy "install-ca-certs" alias, or an http(s) URL pointing to a script to fetch and use as custom data | `any` | `null` | no |
 | <a name="input_env"></a> [env](#input\_env) | (Required) 4 character string defining the environment name prefix for the VM | `string` | n/a | yes |
 | <a name="input_group"></a> [group](#input\_group) | (Required) Character string defining the group for the target subscription | `string` | n/a | yes |
 | <a name="input_location"></a> [location](#input\_location) | Azure location for the VM | `string` | `"canadacentral"` | no |

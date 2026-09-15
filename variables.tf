@@ -54,7 +54,7 @@ variable "user_data" {
 }
 
 variable "custom_data" {
-  description = "Base64 encoded file representing user data script for the VM"
+  description = "Base64 encoded file representing user data script for the VM. Also accepts the legacy \"install-ca-certs\" alias, or an http(s) URL pointing to a script to fetch and use as custom data"
   type        = any
   default     = null
 }

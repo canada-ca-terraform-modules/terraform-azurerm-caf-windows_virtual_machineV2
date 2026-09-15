@@ -280,3 +280,111 @@ run "custom_resource_names" {
     error_message = "nsg_name override must be used as the NSG resource name"
   }
 }
+
+run "custom_data_url" {
+  command = plan
+  variables {
+    windows_VM = {
+      serverType     = "SWJ"
+      resource_group = "Project"
+      admin_username = "azureadmin"
+      admin_password = "TestP@ss123!"
+      vm_size        = "Standard_D2s_v5"
+      jump_server    = true
+      disable_backup = true
+      nic = {
+        nic1 = {
+          subnet                        = "OZ"
+          private_ip_address_allocation = "Dynamic"
+        }
+      }
+      storage_image_reference = {
+        publisher = "MicrosoftWindowsServer"
+        offer     = "WindowsServer"
+        sku       = "2022-datacenter-g2"
+        version   = "latest"
+      }
+    }
+    custom_data = "https://example.com/publicresources/my-custom-data.ps1"
+  }
+  assert {
+    condition     = length(data.http.custom_data) == 1
+    error_message = "An arbitrary http(s) URL passed as custom_data must be fetched via the http data source"
+  }
+  assert {
+    condition     = data.http.custom_data[0].url == "https://example.com/publicresources/my-custom-data.ps1"
+    error_message = "The http data source must fetch the URL provided in custom_data"
+  }
+}
+
+run "custom_data_install_ca_certs_legacy_alias" {
+  command = plan
+  variables {
+    windows_VM = {
+      serverType     = "SWJ"
+      resource_group = "Project"
+      admin_username = "azureadmin"
+      admin_password = "TestP@ss123!"
+      vm_size        = "Standard_D2s_v5"
+      jump_server    = true
+      disable_backup = true
+      nic = {
+        nic1 = {
+          subnet                        = "OZ"
+          private_ip_address_allocation = "Dynamic"
+        }
+      }
+      storage_image_reference = {
+        publisher = "MicrosoftWindowsServer"
+        offer     = "WindowsServer"
+        sku       = "2022-datacenter-g2"
+        version   = "latest"
+      }
+    }
+    custom_data = "install-ca-certs"
+  }
+  assert {
+    condition     = length(data.http.custom_data) == 1
+    error_message = "The legacy install-ca-certs alias must still be fetched via the http data source"
+  }
+  assert {
+    condition     = data.http.custom_data[0].url == "https://gcpcenteslzpublicblob4df.blob.core.windows.net/publicresources/windows-all-customdata-default.ps1"
+    error_message = "install-ca-certs must resolve to the default customdata script URL"
+  }
+}
+
+run "custom_data_plain_value_not_fetched" {
+  command = plan
+  variables {
+    windows_VM = {
+      serverType     = "SWJ"
+      resource_group = "Project"
+      admin_username = "azureadmin"
+      admin_password = "TestP@ss123!"
+      vm_size        = "Standard_D2s_v5"
+      jump_server    = true
+      disable_backup = true
+      nic = {
+        nic1 = {
+          subnet                        = "OZ"
+          private_ip_address_allocation = "Dynamic"
+        }
+      }
+      storage_image_reference = {
+        publisher = "MicrosoftWindowsServer"
+        offer     = "WindowsServer"
+        sku       = "2022-datacenter-g2"
+        version   = "latest"
+      }
+    }
+    custom_data = base64encode("Write-Output 'hello world'")
+  }
+  assert {
+    condition     = length(data.http.custom_data) == 0
+    error_message = "A plain custom_data value must be passed through without being fetched"
+  }
+  assert {
+    condition     = azurerm_windows_virtual_machine.vm.custom_data == base64encode("Write-Output 'hello world'")
+    error_message = "A plain custom_data value must be passed through as-is"
+  }
+}
